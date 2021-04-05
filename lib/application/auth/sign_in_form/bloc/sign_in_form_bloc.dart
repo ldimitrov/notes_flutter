@@ -22,6 +22,34 @@ class SignInFormBloc extends Bloc<SignInFormEvent, SignInFormState> {
   Stream<SignInFormState> mapEventToState(
     SignInFormEvent event,
   ) async* {
-    // TODO: Implement
+    yield* event.map(
+      emailChanged: (e) async* {
+        yield state.copyWith(
+          emailAddress: EmailAddress(e.email),
+          authFailureOrSuccessOption: none(),
+        );
+      },
+      passwordChanged: (e) async* {
+        yield state.copyWith(
+          password: Password(e.password),
+          authFailureOrSuccessOption: none(),
+        );
+      },
+      registerWithEmailAndPasswordPressed: (e) async* {},
+      signInWithEmailAndPasswordPressed: (e) async* {},
+      signInWithGooglePressed: (e) async* {
+        yield state.copyWith(
+          isSubmitting: true,
+          authFailureOrSuccessOption: none(),
+        );
+
+        final failureOrSuccess = await _authFacade.signInWithGoogle();
+
+        yield state.copyWith(
+          isSubmitting: false,
+          authFailureOrSuccessOption: some(failureOrSuccess),
+        );
+      },
+    );
   }
 }
